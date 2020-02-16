@@ -16,8 +16,13 @@
 
 #define MAX_LIMIT 50
 
-void remove_newline_ch(char* line)
-{
+typedef struct argumentosComando {
+    char** argv;
+    int argc;
+    int executaEmBackground;
+} tipoComando;
+
+void remove_newline_ch(char* line){
     // O fgets acaba incluindo caracter de nova linha
     // Rotina gambi pra remover ela
     int new_line = strlen(line) -1;
@@ -25,11 +30,26 @@ void remove_newline_ch(char* line)
         line[new_line] = '\0';
 }
 
-typedef struct argumentosComando {
-    char** argv;
-    int argc;
-    int executaEmBackground;
-} tipoComando;
+int dump_file_to_str_array(char* filename, char** str_arr){
+    // Dump file into array and return the array size
+    char * line = NULL;
+    int j=0;
+    size_t len = 0;
+    ssize_t read;
+    int pathQuantity = 0;
+    FILE* fp = fopen(filename, "r");
+    if (fp == NULL)
+        exit(EXIT_FAILURE);
+    
+    while ((read = getline(&line, &len, fp)) != -1) {
+        remove_newline_ch(line);
+        str_arr[j] = strcat(strdup(line), "/");
+        j++;
+    }
+    fclose(fp);
+    return j;
+}
+
 
 tipoComando monta_vetor_comando(char* usr_input){
     /*
@@ -82,11 +102,16 @@ int main(int argc, char const *argv[])
         wait(&status);
     }else{
         int errno = 0;
-        if(comando.argv[argc] == NULL)
-            printf("%s-", argv[1]);
-        errno = execvp(comando.argv[0], &(comando.argv[0])); 
+        char* pathList[50];
+        char comandoPuro[50];
+        strcpy(comandoPuro, comando.argv[0]);
+        int dirsCount = dump_file_to_str_array("path_list.txt", pathList);
+        for(int i=0;i<dirsCount;i++){
+            strcpy(comando.argv[0], strcat(pathList[i], comandoPuro));
+            errno = execvp(comando.argv[0], &(comando.argv[0])); 
+        }
 
-        // Se chegou aqui é pq o execvp retornou um erro e não tomou controle
+
 
         printf("Comando não encontrado (tente novamente)\n");
     }

@@ -65,6 +65,9 @@ tipoComando monta_vetor_comando(char* usr_input){
    }
    ++argcount; // Conta corretamente pois o ultimo argumento n é um espaço
    char** argvector = (char**) malloc (sizeof(char*) * argcount);
+   for(i=0; i<argcount;i++){
+       argvector[i] = (char*) malloc (sizeof(char) * 50);
+   }
 
    char ultimoCaractere = usr_input[strlen(usr_input) -1];
    if (ultimoCaractere == '&'){
@@ -105,13 +108,13 @@ int main(int argc, char const *argv[])
         char* pathList[50];
         char comandoPuro[50];
         strcpy(comandoPuro, comando.argv[0]);
+
         int dirsCount = dump_file_to_str_array("path_list.txt", pathList);
+
         for(int i=0;i<dirsCount;i++){
             strcpy(comando.argv[0], strcat(pathList[i], comandoPuro));
             errno = execvp(comando.argv[0], &(comando.argv[0])); 
         }
-
-
 
         printf("Comando não encontrado (tente novamente)\n");
     }

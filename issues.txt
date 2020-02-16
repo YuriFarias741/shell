@@ -1,0 +1,2 @@
+- Após o suporte a path_list, a execução com flags falha
+- Falta implementar o processo de compilação automáticas de programas em c

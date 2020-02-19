@@ -104,16 +104,18 @@ int main(int argc, char const *argv[])
             main(argc, argv);
         wait(&status);
     }else{
-        int errno = 0;
+        int errno = 0, i;
         char* pathList[50];
         char comandoPuro[50];
         strcpy(comandoPuro, comando.argv[0]);
 
         int dirsCount = dump_file_to_str_array("path_list.txt", pathList);
 
-        for(int i=0;i<dirsCount;i++){
+        for(i=0;i<dirsCount;i++){
+            comando.argv[0] = (char*) malloc (sizeof(char) * 50);
             strcpy(comando.argv[0], strcat(pathList[i], comandoPuro));
-            errno = execvp(comando.argv[0], &(comando.argv[0])); 
+            errno = execv(comando.argv[0], comando.argv); 
+            free(comando.argv[0]);
         }
 
         printf("Comando não encontrado (tente novamente)\n");
